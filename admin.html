@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Academy - 관리자 대시보드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .admin-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+        }
+
+        .applications-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .refresh-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .applications-list {
+            width: 100%;
+        }
+
+        .application-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .application-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .application-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .application-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 2fr 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .application-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-label {
+            font-size: 0.8rem;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .field-value {
+            font-size: 1rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .motivation-preview {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .application-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .bulk-actions {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .select-all-checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .bulk-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-bulk-delete {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn-bulk-delete:hover {
+            background: #c82333;
+        }
+
+        .selected-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-delete {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .btn-approve:hover { background: #218838; }
+        .btn-reject:hover { background: #c82333; }
+        .btn-delete:hover { background: #5a6268; }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+        }
+
+        .motivation-cell {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .motivation-full {
+            white-space: pre-wrap;
+            max-width: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .close {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .detail-row {
+            margin-bottom: 1rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* Login Modal */
+        .login-modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .login-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .login-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-error {
+            color: #dc3545;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .unauthorized {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+
+        .unauthorized h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        .unauthorized p {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+        }
+
+        .back-to-main {
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .back-to-main:hover {
+            background: #5a6fd8;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 1rem;
+            }
+
+            .application-item {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+
+            .application-content {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .application-field {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0.5rem 0;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .application-field:last-child {
+                border-bottom: none;
+            }
+
+            .field-label {
+                font-size: 0.9rem;
+                margin-bottom: 0;
+                min-width: 80px;
+            }
+
+            .field-value {
+                font-size: 0.9rem;
+                text-align: right;
+            }
+
+            .motivation-preview {
+                max-width: none;
+                white-space: normal;
+                text-align: left;
+            }
+
+            .application-actions {
+                justify-content: center;
+                margin-top: 1rem;
+            }
+
+            .bulk-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .bulk-buttons {
+                justify-content: center;
+            }
+
+            .checkbox-container {
+                align-self: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-content">
+            <h2 class="login-title">관리자 로그인</h2>
+            <input type="password" id="passwordInput" class="login-input" placeholder="비밀번호를 입력하세요" onkeypress="handlePasswordKeyPress(event)">
+            <button class="login-btn" onclick="checkPassword()">로그인</button>
+            <div id="loginError" class="login-error" style="display: none;">비밀번호가 올바르지 않습니다.</div>
+        </div>
+    </div>
+
+    <!-- Unauthorized Content -->
+    <div id="unauthorizedContent" style="display: none;">
+        <div class="unauthorized">
+            <h1>접근 권한이 없습니다</h1>
+            <p>관리자 권한이 필요한 페이지입니다.</p>
+            <a href="index.html" class="back-to-main">메인으로 돌아가기</a>
+        </div>
+    </div>
+
+    <!-- Authorized Content -->
+    <div id="authorizedContent" style="display: none;">
+        <header class="admin-header">
+            <h1 class="admin-title">AI Academy 관리자 대시보드</h1>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <a href="index.html" target="_blank" class="back-btn">홈</a>
+                <a href="index.html" class="back-btn">메인으로 돌아가기</a>
+            </div>
+        </header>
+
+        <div class="dashboard-container">
+        <!-- 통계 카드 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalApplications">0</div>
+                <div class="stat-label">총 신청 수</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingApplications">0</div>
+                <div class="stat-label">대기 중</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="approvedApplications">0</div>
+                <div class="stat-label">승인됨</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="rejectedApplications">0</div>
+                <div class="stat-label">거절됨</div>
+            </div>
+        </div>
+
+        <!-- 신청 목록 -->
+        <div class="applications-section">
+            <div class="section-header">
+                <h2 class="section-title">신청 목록</h2>
+                <button class="refresh-btn" onclick="loadApplications()">새로고침</button>
+            </div>
+            
+            <!-- 일괄 작업 영역 -->
+            <div class="bulk-actions" id="bulkActions" style="display: none;">
+                <div class="select-all-container">
+                    <input type="checkbox" id="selectAll" class="select-all-checkbox" onchange="toggleSelectAll()">
+                    <label for="selectAll">전체 선택</label>
+                    <span class="selected-count" id="selectedCount">0개 선택됨</span>
+                </div>
+                <div class="bulk-buttons">
+                    <button class="btn-bulk-delete" onclick="deleteSelected()">선택 삭제</button>
+                </div>
+            </div>
+            
+            <div id="applicationsList">
+                <div class="loading">데이터를 불러오는 중...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 상세 보기 모달 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">신청 상세 정보</h3>
+                <span class="close" onclick="closeDetailModal()">&times;</span>
+            </div>
+            <div id="detailContent">
+                <!-- 상세 내용이 여기에 표시됩니다 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 인증 상태 확인
+        let isAuthenticated = false;
+        const ADMIN_PASSWORD = "admin123";
+
+        // 페이지 로드 시 로그인 모달 표시
+        document.addEventListener('DOMContentLoaded', function() {
+            showLoginModal();
+        });
+
+        // 로그인 모달 표시
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+            document.getElementById('passwordInput').focus();
+        }
+
+        // 비밀번호 확인
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (password === ADMIN_PASSWORD) {
+                isAuthenticated = true;
+                document.getElementById('loginModal').style.display = 'none';
+                document.getElementById('authorizedContent').style.display = 'block';
+                loadApplications(); // 데이터 로드
+            } else {
+                errorDiv.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // Enter 키로 로그인
+        function handlePasswordKeyPress(event) {
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        }
+
+        // 로그인 모달 외부 클릭 시 메인으로 이동
+        document.getElementById('loginModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    
+    <!-- Firebase 설정 -->
+    <script src="firebase-config.js"></script>
+    
+    <script>
+        let applications = [];
+        let selectedApplications = new Set();
+
+        // 페이지 로드 시 데이터 가져오기 (인증 후에만 실행됨)
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     loadApplications();
+        // });
+
+        // 신청 데이터 로드
+        async function loadApplications() {
+            try {
+                const loadingDiv = document.getElementById('applicationsList');
+                loadingDiv.innerHTML = '<div class="loading">데이터를 불러오는 중...</div>';
+
+                applications = await getAllApplications();
+                updateStats();
+                renderApplicationsList();
+            } catch (error) {
+                console.error('데이터 로드 오류:', error);
+                document.getElementById('applicationsList').innerHTML = 
+                    '<div class="error">데이터를 불러오는 중 오류가 발생했습니다.</div>';
+            }
+        }
+
+        // 통계 업데이트
+        function updateStats() {
+            const total = applications.length;
+            const pending = applications.filter(app => app.status === 'pending').length;
+            const approved = applications.filter(app => app.status === 'approved').length;
+            const rejected = applications.filter(app => app.status === 'rejected').length;
+
+            document.getElementById('totalApplications').textContent = total;
+            document.getElementById('pendingApplications').textContent = pending;
+            document.getElementById('approvedApplications').textContent = approved;
+            document.getElementById('rejectedApplications').textContent = rejected;
+        }
+
+        // 신청 목록 리스트 렌더링
+        function renderApplicationsList() {
+            const listContainer = document.getElementById('applicationsList');
+            
+            if (applications.length === 0) {
+                listContainer.innerHTML = '<div class="loading">신청 데이터가 없습니다.</div>';
+                document.getElementById('bulkActions').style.display = 'none';
+                return;
+            }
+
+            let listHTML = '<div class="applications-list">';
+
+            applications.forEach(app => {
+                const date = app.timestamp ? new Date(app.timestamp.toDate()).toLocaleDateString('ko-KR') : 'N/A';
+                const statusClass = `status-${app.status}`;
+                const statusText = {
+                    'pending': '대기 중',
+                    'approved': '승인됨',
+                    'rejected': '거절됨'
+                }[app.status] || '대기 중';
+
+                listHTML += `
+                    <div class="application-item">
+                        <div class="checkbox-container">
+                            <input type="checkbox" 
+                                   class="application-checkbox" 
+                                   id="checkbox-${app.id}"
+                                   onchange="toggleSelection('${app.id}')"
+                                   ${selectedApplications.has(app.id) ? 'checked' : ''}>
+                        </div>
+                        <div class="application-content">
+                            <div class="application-field">
+                                <div class="field-label">신청일</div>
+                                <div class="field-value">${date}</div>
+                            </div>
+                            <div class="application-field">
+                                <div class="field-label">이름</div>
+                                <div class="field-value">${app.name}</div>
+                            </div>
+                            <div class="application-field">
+                                <div class="field-label">이메일</div>
+                                <div class="field-value">${app.email}</div>
+                            </div>
+                            <div class="application-field">
+                                <div class="field-label">신청동기</div>
+                                <div class="field-value motivation-preview" onclick="showDetail('${app.id}')" title="클릭하여 상세보기">${app.motivation}</div>
+                            </div>
+                            <div class="application-field">
+                                <div class="field-label">상태</div>
+                                <div class="field-value">
+                                    <span class="status-badge ${statusClass}">${statusText}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="application-actions">
+                            ${app.status === 'pending' ? `
+                                <button class="btn-approve" onclick="updateStatus('${app.id}', 'approved')">승인</button>
+                                <button class="btn-reject" onclick="updateStatus('${app.id}', 'rejected')">거절</button>
+                            ` : ''}
+                            <button class="btn-delete" onclick="deleteApp('${app.id}')">삭제</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listHTML += '</div>';
+            listContainer.innerHTML = listHTML;
+            
+            // 일괄 작업 영역 표시
+            document.getElementById('bulkActions').style.display = 'flex';
+            updateSelectedCount();
+        }
+
+        // 상태 업데이트
+        async function updateStatus(applicationId, status) {
+            if (!confirm(`신청을 ${status === 'approved' ? '승인' : '거절'}하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                await updateApplicationStatus(applicationId, status);
+                await loadApplications(); // 목록 새로고침
+            } catch (error) {
+                alert('상태 업데이트 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 체크박스 선택 토글
+        function toggleSelection(applicationId) {
+            if (selectedApplications.has(applicationId)) {
+                selectedApplications.delete(applicationId);
+            } else {
+                selectedApplications.add(applicationId);
+            }
+            updateSelectedCount();
+            updateSelectAllCheckbox();
+        }
+
+        // 전체 선택 토글
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.application-checkbox');
+            
+            if (selectAllCheckbox.checked) {
+                // 전체 선택
+                applications.forEach(app => {
+                    selectedApplications.add(app.id);
+                });
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = true;
+                });
+            } else {
+                // 전체 해제
+                selectedApplications.clear();
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+            }
+            updateSelectedCount();
+        }
+
+        // 선택된 개수 업데이트
+        function updateSelectedCount() {
+            const count = selectedApplications.size;
+            document.getElementById('selectedCount').textContent = `${count}개 선택됨`;
+        }
+
+        // 전체 선택 체크박스 상태 업데이트
+        function updateSelectAllCheckbox() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const totalCount = applications.length;
+            const selectedCount = selectedApplications.size;
+            
+            if (selectedCount === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (selectedCount === totalCount) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            }
+        }
+
+        // 선택된 항목 삭제
+        async function deleteSelected() {
+            const selectedCount = selectedApplications.size;
+            if (selectedCount === 0) {
+                alert('삭제할 항목을 선택해주세요.');
+                return;
+            }
+
+            if (!confirm(`선택된 ${selectedCount}개의 신청을 삭제하시겠습니까?`)) {
+                return;
+            }
+
+            try {
+                const deletePromises = Array.from(selectedApplications).map(id => deleteApplication(id));
+                await Promise.all(deletePromises);
+                
+                selectedApplications.clear();
+                await loadApplications(); // 목록 새로고침
+                alert(`${selectedCount}개의 신청이 삭제되었습니다.`);
+            } catch (error) {
+                console.error('일괄 삭제 오류:', error);
+                alert('삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 신청 삭제
+        async function deleteApp(applicationId) {
+            if (!confirm('이 신청을 삭제하시겠습니까?')) {
+                return;
+            }
+
+            try {
+                await deleteApplication(applicationId);
+                selectedApplications.delete(applicationId);
+                await loadApplications(); // 목록 새로고침
+            } catch (error) {
+                alert('삭제 중 오류가 발생했습니다.');
+            }
+        }
+
+        // 상세 보기 모달
+        function showDetail(applicationId) {
+            const app = applications.find(a => a.id === applicationId);
+            if (!app) return;
+
+            const modal = document.getElementById('detailModal');
+            const content = document.getElementById('detailContent');
+            
+            const date = app.timestamp ? new Date(app.timestamp.toDate()).toLocaleString('ko-KR') : 'N/A';
+            
+            content.innerHTML = `
+                <div class="detail-row">
+                    <div class="detail-label">신청일시</div>
+                    <div class="detail-value">${date}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">이름</div>
+                    <div class="detail-value">${app.name}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">이메일</div>
+                    <div class="detail-value">${app.email}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">휴대폰</div>
+                    <div class="detail-value">${app.phone}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">신청동기</div>
+                    <div class="detail-value motivation-full">${app.motivation}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">상태</div>
+                    <div class="detail-value">
+                        <span class="status-badge status-${app.status}">
+                            ${app.status === 'pending' ? '대기 중' : app.status === 'approved' ? '승인됨' : '거절됨'}
+                        </span>
+                    </div>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        // 상세 모달 닫기
+        function closeDetailModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 시 닫기
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                closeDetailModal();
+            }
+        }
+    </script>
+</body>
+</html> 
